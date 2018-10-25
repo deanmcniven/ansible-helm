@@ -1,0 +1,20 @@
+---
+- name: Old Helm Identifier
+  become: true
+  find:
+    paths: /opt/kubernetes
+    pattern: "helm-v\\d+\\.\\d+\\.\\d+$"
+    recurse: no
+    file_type: directory
+    use_regex: yes
+    excludes: "helm-{{ helm_version }}"
+  register: helm_old_installations
+
+- name: Delete Old Helm Installations
+  become: true
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ helm_old_installations.files }}"
+  when: helm_old_installations.matched != 0
+

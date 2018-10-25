@@ -1,0 +1,34 @@
+---
+- name: Create Helm Directory
+  become: true
+  file:
+    path: /opt/kubernetes/helm-{{ helm_version }}
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Download Helm
+  become: true
+  get_url:
+    url: "{{ helm_download_url }}"
+    dest: /opt/kubernetes/helm-{{ helm_version }}/helm-{{ helm_version }}.tar.gz
+
+- name: Install Helm
+  become: true
+  unarchive:
+    src: /opt/kubernetes/helm-{{ helm_version }}/helm-{{ helm_version }}.tar.gz
+    dest: /opt/kubernetes/helm-{{ helm_version }}/
+    extra_opts:
+      - --strip-components=1
+
+- name: Creating symlink to Helm
+  become: true
+  file:
+    src: /opt/kubernetes/helm-{{ helm_version }}/helm
+    dest: /usr/local/bin/helm
+    owner: root
+    group: root
+    mode: 0755
+    state: link
+
